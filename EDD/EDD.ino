@@ -8,7 +8,7 @@
 Adafruit_MPU6050 mpu;
 
 int vibrationSensorReading;
-int vibrationThreshold = 150;
+int vibrationThreshold = 200;
 
 unsigned int confidenceCycles;
 unsigned long delayPeriod_ms = 5000;
@@ -24,6 +24,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(VIBRATION_PIN, INPUT);
   pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);
 
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
@@ -37,6 +38,7 @@ void setup() {
 }
 
 void loop() {
+  digitalWrite(RELAY_PIN, LOW);
   vibrationSensorReading = analogRead(VIBRATION_PIN);
   Serial.print("Vibration Sensor Reading: ");
   Serial.println(vibrationSensorReading);
@@ -83,4 +85,5 @@ void loop() {
   }
 
   delay(100);
+  digitalWrite(RELAY_PIN, LOW);
 }
