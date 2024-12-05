@@ -10,12 +10,12 @@ Adafruit_MPU6050 mpu;
 int vibrationSensorReading;
 int vibrationThreshold = 200;
 
-unsigned int confidenceCycles;
+unsigned int confidenceCycles = 0;
+unsigned long lastDetectionTime = 0;
 unsigned long delayPeriod_ms = 5000;
-unsigned long vibrationDetectedTime = 0;
 
-bool isVibrationMoved;
-bool isMPUMoved;
+bool isVibrationMoved = false;
+bool isMPUMoved = false;
 
 float accelX, accelY, accelZ;
 float accelThreshold = 1.5;
@@ -27,26 +27,21 @@ void setup() {
   digitalWrite(RELAY_PIN, LOW);
 
   if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
+    while (1) delay(10);
   }
-  Serial.println("MPU6050 Found!");
 
   mpu.setAccelerometerRange(MPU6050_RANGE_2_G);
 }
 
 void loop() {
-  digitalWrite(RELAY_PIN, LOW);
   vibrationSensorReading = analogRead(VIBRATION_PIN);
   Serial.print("Vibration Sensor Reading: ");
   Serial.println(vibrationSensorReading);
 
   if (vibrationSensorReading >= vibrationThreshold) {
     isVibrationMoved = true;
-    Serial.println("Vibration Detected (Earthquake?)!");
-    vibrationDetectedTime = millis(); 
+    lastDetectionTime = millis();
+    Serial.println("Vibration Detected!");
   } else {
     isVibrationMoved = false;
   }
@@ -73,17 +68,22 @@ void loop() {
 
   if (isVibrationMoved && isMPUMoved) {
     confidenceCycles++;
-    if (millis() - vibrationDetectedTime >= delayPeriod_ms) {
-      if (confidenceCycles == 5) {
-        Serial.println("Both Vibration and MPU6050 detected movement! Triggering Relay...");
-        digitalWrite(RELAY_PIN, HIGH); 
-        delay(2000);
-        digitalWrite(RELAY_PIN, LOW);
-        confidenceCycles = 0;
-      }
-    }
+    Serial.print("Confidence Cycles: ");
+    Serial.println(confidenceCycles);
+  }
+
+  if (confidenceCycles >= 5) {
+    Serial.println("Triggering Relay...");
+    digitalWrite(RELAY_PIN, HIGH);
+    delay(2000);
+    digitalWrite(RELAY_PIN, LOW);
+    confidenceCycles = 0;
+    lastDetectionTime = millis();
+  }
+
+  if (millis() - lastDetectionTime > delayPeriod_ms) {
+    confidenceCycles = 0;
   }
 
   delay(100);
-  digitalWrite(RELAY_PIN, LOW);
 }
