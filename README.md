@@ -1,64 +1,69 @@
-# Earthquake Detection Device (EDD) for Arduino
+# Earthquake Detection and Relay Control System
 
-A reliable Arduino-based earthquake detection system using MPU6050 accelerometer and vibration sensors for early warning.
+## Overview
+This project uses an MPU6050 accelerometer and a vibration sensor to detect potential earthquake-like movements, activating a relay when significant movement is detected.
 
 ## Features
+- Vibration detection with analog sensor
+- Movement tracking via MPU6050 accelerometer
+- Configurable sensitivity thresholds
+- Automated relay activation
 
-- Dual-sensor validation using accelerometer and vibration detection
-- Configurable sensitivity thresholds for X, Y, and Z axes
-- Confidence-based triggering system to prevent false alarms
-- Relay output for connecting warning systems or emergency controls
-- Serial monitoring for real-time movement data
+## Code Modification Guide
 
-## Hardware Requirements
+### 1. Vibration Sensor Threshold
+- **Variable**: `vibrationThreshold`
+- **Default**: `200`
+- **Modification Example**:
+    ```cpp
+    int vibrationThreshold = 250; // Increases sensitivity
+    ```
 
-- Arduino board
+### 2. MPU6050 Sensitivity
+- **Variable**: `accelThreshold`
+- **Default**: `1.5`
+- **Modification Example**:
+    ```cpp
+    float accelThreshold = 2.0; // Reduces sensitivity
+    ```
+
+### 3. Confidence Cycles
+- **Variable**: `confidenceCycles`
+- **Default Trigger**: `5`
+- **Modification Example**:
+    ```cpp
+    if (confidenceCycles >= 3) { // Faster relay triggering
+    ```
+
+### 4. Relay Activation Duration
+- **Default Duration**:
+    ```cpp
+    delay(2000); // Milliseconds
+    ```
+- **Modification Example**:
+    ```cpp
+    delay(3000); // 3-second activation
+    ```
+
+### 5. Detection Delay Period
+- **Variable**: `delayPeriod_ms`
+- **Default**: `5000` milliseconds
+- **Modification Example**:
+    ```cpp
+    unsigned long delayPeriod_ms = 10000; // 10-second delay
+    ```
+
+## System Requirements
+- Microcontroller with I2C support
 - MPU6050 accelerometer
-- Vibration sensor
+- Analog vibration sensor
 - Relay module
-- Jumper wires
 
-## Pin Configuration
+## Important Considerations
+1. Verify I2C pin connections
+2. Check relay module specifications
+3. Use Serial Monitor for debugging
+4. Calibrate sensor thresholds
 
-- Vibration Sensor: Pin 2
-- Relay Output: Pin 3
-- MPU6050: I2C connection (SDA/SCL)
-
-## Installation
-
-1. Install required libraries:
-   ```
-   #include <Wire.h>
-   #include <MPU6050.h>
-   ```
-
-2. Connect components according to pin configuration
-3. Upload code to Arduino board
-
-## Configuration
-
-Adjust detection sensitivity via `EarthquakeSettings` struct:
-
-```cpp
-float accelXThreshold = 2.0;  // Side-to-side sensitivity
-float accelYThreshold = 2.0;  // Front-to-back sensitivity
-float accelZThreshold = 2.0;  // Up-down sensitivity
-int requiredConfidenceCycles = 3;  // Detection cycles needed
-int cooldownPeriod = 1000;  // Milliseconds between checks
-```
-
-## How It Works
-
-1. System monitors both accelerometer and vibration sensor data
-2. Movement must exceed thresholds on both sensors
-3. Required number of confidence cycles must be met
-4. Alarm triggers through relay when earthquake is confirmed
-5. System enters cooldown period before next detection cycle
-
-## Serial Output
-
-Monitor earthquake detection in real-time through Serial Monitor (9600 baud):
-- Initialization status
-- Movement detection data
-- Alarm triggers
-- Setting updates
+## License
+Open-source. Modify and distribute freely.
